@@ -195,6 +195,9 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+@app.route('/friend', methods=['GET'])
+def friend():
+	return render_template('friend.html')
 
 #default page
 @app.route("/", methods=['GET'])
