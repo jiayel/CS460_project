@@ -195,9 +195,31 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
-@app.route('/friend', methods=['GET'])
+@app.route('/friend', methods=['GET','POST'])
+@flask_login.login_required
 def friend():
-	return render_template('friend.html')
+	if request.method =='POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		f_email = request.form.get('Friend')
+		print(f_email)
+		fid = getUserIdFromEmail(f_email)
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Friends(Friends_id, Friends_email, user_id) VALUES ('{0}','{1}','{2}')".format(fid,f_email,uid)))
+		conn.commit()
+		return render_template('friend.html', name=flask_login.current_user.id, message='Friend Added!')
+	else:
+		return render_template('friend.html')
+
+@app.route('/view_friend', methods = ['GET','POST'])
+@flask_login.login_required
+def view_friend():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	cursor.execute("SELECT Friends_email FROM Friends WHERE user_id = '{0}'".format(uid))
+	Friends= cursor.fetchall()
+
+	return render_template('view_friend.html', friends = Friends)
+
 
 #default page
 @app.route("/", methods=['GET'])

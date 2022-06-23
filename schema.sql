@@ -26,11 +26,13 @@ CREATE TABLE Pictures
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
 
+DROP TABLE IF EXISTS Frinds CASCADE;
+
 CREATE TABLE Friends(
     Friends_id INTEGER PRIMARY KEY,
-    First_name VARCHAR(30),
-    Last_name VARCHAR(30),
-    FOREIGN KEY (User_id) REFERENCES Users(User_id)
+    Friends_email varchar(225) UNIQUE,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
                     );
 
 
