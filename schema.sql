@@ -16,15 +16,6 @@ CREATE TABLE Users (
     CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
-CREATE TABLE Pictures
-(
-  picture_id int4  AUTO_INCREMENT,
-  user_id int4,
-  imgdata longblob ,
-  caption VARCHAR(255),
-  INDEX upid_idx (user_id),
-  CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
-);
 
 DROP TABLE IF EXISTS Frinds CASCADE;
 
@@ -34,6 +25,25 @@ CREATE TABLE Friends(
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
                     );
+
+DROP TABLE IF EXISTS Albums CASCADE;
+CREATE TABLE Albums(
+    Album_id INTEGER PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    Date_of_creation DATE NOT NULL,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE Pictures
+(
+  picture_id int4  AUTO_INCREMENT,
+  user_id int4,
+  imgdata longblob ,
+  caption VARCHAR(255),
+  INDEX upid_idx (user_id),
+  CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
+);
 
 
 

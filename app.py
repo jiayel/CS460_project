@@ -17,6 +17,10 @@ import flask_login
 #for image uploading
 import os, base64
 
+#for current date
+from datetime import datetime
+
+
 mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = 'super secret string'  # Change this!
@@ -171,6 +175,23 @@ def isEmailUnique(email):
 @flask_login.login_required
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+
+
+@app.route('/view_albums', methods =['GET', 'POST'])
+@flask_login.login_required
+def view_albums():
+	if request.method == 'POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		album_name = request.form.get('album_name')
+		date = datetime.now()
+		cursor = conn.cursor()
+		print(cursor.execute(
+			"INSERT INTO Albums(name,Date_of_ceation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
+		conn.commit()
+		return render_template('view_albums.html')
+	else:
+		return render_template('view_albums.html')
+
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML

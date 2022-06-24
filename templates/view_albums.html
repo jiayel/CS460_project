@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>create new album</title>
+</head>
+<body>
+        <div class="title">
+            <h1>Create Your New Album!</h1>
+        </div>
+
+        <div id='content'>
+            <form method="post" action="{{ url_for('view_albums') }}">
+                <label for="Album_name">Enter your new album name: </label>
+                <input type="Album_name" name="Album_name"/><br/>
+                <input type="submit"/>
+            </form>
+        </div>
+
+</body>
+</html>
