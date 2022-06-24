@@ -10,7 +10,7 @@
 ###################################################
 
 import flask
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, Response, request, render_template, redirect, url_for, flash
 from flaskext.mysql import MySQL
 import flask_login
 
@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -130,7 +130,7 @@ def register_user():
 		Date_of_birth = request.form.get('Date_of_birth')
 
 	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+		print("couldn't find all tokens 1") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
@@ -142,9 +142,10 @@ def register_user():
 		user.id = email
 
 		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
+		return render_template('hello.html', name=First_name, message='Account Created!')
 	else:
-		print("couldn't find all tokens")
+		print("couldn't find all tokens 2")
+		flash("Account has been created","info")
 		return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):

@@ -13,20 +13,28 @@
             <form method="post" action="{{ url_for('register_user') }}">
                 <label for="First_name">Enter your First_name:</label>
                 <input type="First_name" name="First_name" /><br />
+
                 <label for="Last_name">Enter your Last_name:</label>
                 <input type="Last_name" name="Last_name" /><br />
 
                 <label for="email">Enter your email:</label>
                 <input type="email" name="email" /><br />
+
                 <label for="password">Enter password:</label>
                 <input type="password" name="password" /><br />
 
                 <label for="Hometown">Enter your Hometown:</label>
                 <input type="Hometown" name="Hometown" /><br />
+
                 <label for="Gender">Enter your Gender:</label>
-                <input type="Gender" name="Gender" /><br />
+                <select name="Gender">
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="other">other</option>
+                </select><br />
+
                 <label for="Date_of_birth">Enter your Date_of_birth:</label>
-                <input type="Date_of_birth" name="Date_of_birth" /><br />
+                <input type="date" name="Date_of_birth" /><br />
 
                 <input type="submit" />
             </form>
