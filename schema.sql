@@ -20,19 +20,22 @@ CREATE TABLE Users (
 DROP TABLE IF EXISTS Frinds CASCADE;
 
 CREATE TABLE Friends(
-    Friends_id INTEGER PRIMARY KEY,
+    Friends_id INTEGER,
     Friends_email varchar(225) UNIQUE,
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    PRIMARY KEY(user_id, Friends_id)
                     );
 
 DROP TABLE IF EXISTS Albums CASCADE;
 CREATE TABLE Albums(
-    Album_id INTEGER PRIMARY KEY,
-    name VARCHAR(30) NOT NULL,
+    Album_id int4 AUTO_INCREMENT,
+    Album_name VARCHAR(30) NOT NULL,
     Date_of_creation DATE NOT NULL,
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+	CONSTRAINT Album_id PRIMARY KEY (Album_id)
+
 );
 
 CREATE TABLE Pictures
