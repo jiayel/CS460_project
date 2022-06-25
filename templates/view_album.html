@@ -7,7 +7,7 @@
 <body>
     <div>
     {% for album in all_albums %}
-        <p>{{ album }}</p>
+        <a href ='{{ url_for( 'album_content', album_id=album[0])}}'>{{ album[1] }}</a>
     {% endfor %}
     </div>
 

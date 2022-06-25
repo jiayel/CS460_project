@@ -205,7 +205,14 @@ def view_album():
 		all_albums = cursor.fetchall()
 		return render_template('view_album.html', all_albums = all_albums)
 
-
+@app.route('/album_content/<album_id>', methods =['GET','POST'])
+@flask_login.login_required
+def album_content(album_id):
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	cursor.execute("SELECT picture_id, imgdata, caption, album_id FROM Pictures WHERE user_id='{0}'".format(uid))
+	all_photos = cursor.fetchall()
+	return render_template('album_content.html', all_photos=all_photos)
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
