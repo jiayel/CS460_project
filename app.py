@@ -245,8 +245,9 @@ def friend():
 		f_email = request.form.get('Friend')
 		print(f_email)
 		fid = getUserIdFromEmail(f_email)
+		user_email = flask_login.current_user.id
 		cursor = conn.cursor()
-		print(cursor.execute("INSERT INTO Friends(Friends_id, Friends_email, user_id) VALUES ('{0}','{1}','{2}')".format(fid,f_email,uid)))
+		print(cursor.execute("INSERT INTO Friends(Friends_id, Friends_email,user_email, user_id) VALUES ('{0}','{1}','{2}','{3}')".format(fid,f_email,user_email,uid)))
 		conn.commit()
 		return render_template('friend.html', name=flask_login.current_user.id, message='Friend Added!')
 	else:
@@ -259,8 +260,15 @@ def view_friend():
 	cursor = conn.cursor()
 	cursor.execute("SELECT Friends_email FROM Friends WHERE user_id = '{0}'".format(uid))
 	Friends= cursor.fetchall()
-
-	return render_template('view_friend.html', friends = Friends)
+	Friends = list(Friends)
+	cursor=conn.cursor()
+	cursor.execute("SELECT user_email FROM Friends WHERE Friends_id ='{0}'".format(uid))
+	Friends.append(list(cursor.fetchall()))
+	final = []
+	for i in Friends:
+		if i not in final:
+			final.append(i)
+	return render_template('view_friend.html', friends = i)
 
 
 #default page
