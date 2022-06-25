@@ -10,12 +10,16 @@
         </div>
 
         <div id='content'>
-            <form method="post" action="{{ url_for('view_albums') }}">
+            <form method="post" action="{{ url_for('create_albums', uid=uid) }}">
                 <label for="Album_name">Enter your new album name: </label>
                 <input type="Album_name" name="Album_name"/><br/>
                 <input type="submit"/>
             </form>
         </div>
+        <li><a href ='view_album'>view_album</a></li>
+
+
+
 
 </body>
 </html>

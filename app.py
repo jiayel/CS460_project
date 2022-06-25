@@ -10,7 +10,7 @@
 ###################################################
 
 import flask
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, Response, request, render_template, redirect, url_for, flash
 from flaskext.mysql import MySQL
 import flask_login
 
@@ -19,6 +19,7 @@ import os, base64
 
 #for current date
 from datetime import datetime
+import time
 
 
 mysql = MySQL()
@@ -134,7 +135,7 @@ def register_user():
 		Date_of_birth = request.form.get('Date_of_birth')
 
 	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+		print("couldn't find all tokens 1") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
@@ -146,9 +147,10 @@ def register_user():
 		user.id = email
 
 		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
+		return render_template('hello.html', name=First_name, message='Account Created!')
 	else:
-		print("couldn't find all tokens")
+		print("couldn't find all tokens 2")
+		flash("Account has been created", "info")
 		return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):
@@ -177,20 +179,32 @@ def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
 
 
-@app.route('/view_albums', methods =['GET', 'POST'])
+@app.route('/create_albums', methods =['GET', 'POST'])
 @flask_login.login_required
-def view_albums():
+def create_albums():
 	if request.method == 'POST':
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		album_name = request.form.get('album_name')
+		Album_name = request.form.get('Album_name')
 		date = datetime.now()
 		cursor = conn.cursor()
 		print(cursor.execute(
-			"INSERT INTO Albums(name,Date_of_ceation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
+			"INSERT INTO Albums(Album_name,Date_of_creation, user_id) VALUES ('{0}','{1}','{2}')".format(Album_name, date, uid)))
 		conn.commit()
-		return render_template('view_albums.html')
+		album_id = cursor.lastrowid
+		return render_template('create_albums.html', album_id = album_id, uid =uid)
 	else:
-		return render_template('view_albums.html')
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		return render_template('create_albums.html',uid =uid)
+
+@app.route('/view_album', methods = ['GET', 'POST'])
+@flask_login.login_required
+def view_album():
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		cursor = conn.cursor()
+		cursor.execute("SELECT Album_id, Album_name, user_id FROM Albums WHERE user_id = '{0}'".format(uid))
+		all_albums = cursor.fetchall()
+		return render_template('view_album.html', all_albums = all_albums)
+
 
 
 #begin photo uploading code
