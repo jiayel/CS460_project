@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>upload_photo</title>
+</head>
+    <body>
+        <div class="title">
+            <h1>Upload a photo to Photoshare</h1>
+        </div>
+            <form enctype="multipart/form-data" action="{{ url_for('upload_photo', album_id=album_id) }}" method=POST>
+                <label for="photo">Select photo:</label>
+                <input type="file" name="photo" required='true' /><br />
+                <label for="caption">Please caption:</label>
+                <input type="text" name="caption" required='true' /><br />
+                <input type="submit" value="Upload" />
+            </form>
+</body>
+</html>
