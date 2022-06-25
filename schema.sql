@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
-DROP TABLE IF EXISTS Pictures CASCADE;
-DROP TABLE IF EXISTS Friends CASCADE;
+
 DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
@@ -17,6 +16,19 @@ CREATE TABLE Users (
     CONSTRAINT users_pk PRIMARY KEY (User_id)
 );
 
+
+DROP TABLE IF EXISTS Frinds CASCADE;
+
+DROP TABLE IF EXISTS Albums CASCADE;
+CREATE TABLE Albums(
+    Album_id INTEGER PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    Date_of_creation DATE NOT NULL,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+DROP TABLE IF EXISTS Pictures CASCADE;
 CREATE TABLE Pictures
 (
   picture_id int4  AUTO_INCREMENT,

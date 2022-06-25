@@ -17,6 +17,10 @@ import flask_login
 #for image uploading
 import os, base64
 
+#for current date
+from datetime import datetime
+
+
 mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = 'super secret string'  # Change this!
@@ -173,6 +177,23 @@ def isEmailUnique(email):
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
 
+
+@app.route('/view_albums', methods =['GET', 'POST'])
+@flask_login.login_required
+def view_albums():
+	if request.method == 'POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		album_name = request.form.get('album_name')
+		date = datetime.now()
+		cursor = conn.cursor()
+		print(cursor.execute(
+			"INSERT INTO Albums(name,Date_of_ceation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
+		conn.commit()
+		return render_template('view_albums.html')
+	else:
+		return render_template('view_albums.html')
+
+
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -195,6 +216,31 @@ def upload_file():
 	else:
 		return render_template('upload.html')
 #end photo uploading code
+
+@app.route('/friend', methods=['GET','POST'])
+@flask_login.login_required
+def friend():
+	if request.method =='POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		f_email = request.form.get('Friend')
+		print(f_email)
+		fid = getUserIdFromEmail(f_email)
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Friends(Friends_id, Friends_email, user_id) VALUES ('{0}','{1}','{2}')".format(fid,f_email,uid)))
+		conn.commit()
+		return render_template('friend.html', name=flask_login.current_user.id, message='Friend Added!')
+	else:
+		return render_template('friend.html')
+
+@app.route('/view_friend', methods = ['GET','POST'])
+@flask_login.login_required
+def view_friend():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	cursor.execute("SELECT Friends_email FROM Friends WHERE user_id = '{0}'".format(uid))
+	Friends= cursor.fetchall()
+
+	return render_template('view_friend.html', friends = Friends)
 
 
 #default page
