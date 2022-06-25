@@ -187,7 +187,7 @@ def view_albums():
 		date = datetime.now()
 		cursor = conn.cursor()
 		print(cursor.execute(
-			"INSERT INTO Albums(name,Date_of_ceation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
+			"INSERT INTO Albums(name,Date_of_creation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
 		conn.commit()
 		return render_template('view_albums.html')
 	else:
