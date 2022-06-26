@@ -28,7 +28,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -147,7 +147,7 @@ def register_user():
 		user.id = email
 
 		flask_login.login_user(user)
-		return render_template('hello.html', name=First_name, message='Account Created!')
+		return render_template('profile.html', name=First_name, message='Account Created!')
 	else:
 		print("couldn't find all tokens 2")
 		flash("Account has been created", "info")
@@ -176,7 +176,7 @@ def isEmailUnique(email):
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+	return render_template('profile.html', name=flask_login.current_user.id, message="Here's your profile")
 
 
 @app.route('/create_albums', methods =['GET', 'POST'])
@@ -224,14 +224,13 @@ def allowed_file(filename):
 @flask_login.login_required
 def upload_file():
 	if request.method == 'POST':
-		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
-		photo_data =imgfile.read()
+		photo_data =base64.standard_b64encode(imgfile.read())
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''', (photo_data, uid, caption))
+		cursor.execute('''INSERT INTO Pictures (imgdata, caption) VALUES (%s, %s )''', (photo_data, caption))
 		conn.commit()
-		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid), base64=base64)
+		return render_template('profile.html', message='Photo uploaded!', base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html')
@@ -268,13 +267,21 @@ def view_friend():
 	for i in Friends:
 		if i not in final:
 			final.append(i)
+	# if final == []:
+	# 	return render_template('view_friend.html', friends = i)
 	return render_template('view_friend.html', friends = i)
 
 
 #default page
-@app.route("/", methods=['GET'])
+@app.route("/", methods=['GET', 'POST'])
 def hello():
-	return render_template('hello.html', message='Welecome to Photoshare')
+	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
+	cursor.execute(query)
+	all_photos = []
+	for item in cursor:
+		img = ''.join(list(str(item[1]))[2:-1])
+		all_photos.append([item[0], img, item[2]])
+	return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos)
 
 
 if __name__ == "__main__":
