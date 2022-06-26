@@ -36,7 +36,7 @@
 <div class="row text-center text-lg-left">
   {% for photo in Photos %}
       <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href ='{{ url_for( 'view_photo', photo_id=photo[1]) }}'>
+          <a href ='{{ url_for( 'view_photo', photo_id=photo[0]) }}'>
         <img src='data:image/jpg/jpeg/gif;base64, {{ base64.b64encode(photo[1]).decode("ascii") }}' width="400" height="379"/>
           </a>
       </div>

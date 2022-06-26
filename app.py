@@ -223,12 +223,30 @@ def album_content(album_id):
 from base64 import b64encode
 @app.route('/view_photo/<photo_id>', methods = ['GET','POST'])
 def view_photo(photo_id):
+	#show photo
 	cursor = conn.cursor()
 	cursor.execute(
 		"SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE picture_id = '{0}'".format(
 			photo_id))
 	image = cursor.fetchone()[0]  # a list of tuples, [(imgdata, pid, caption), ...]
-	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64)
+
+	#show comment
+	cursor.execute(
+		"SELECT text, user_id FROM Comments WHERE picture_id = '{0}'".format(photo_id)
+	)
+	all_comments = cursor.fetchall()
+	#show likes
+
+	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64, all_comments= all_comments)
+
+@app.route('/add_comment/<photo_id>', methods =["GET", "POST"])
+def add_comment(photo_id):
+	comment = request.form.get('Comment')
+	date = datetime.now()
+	cursor = conn.cursor()
+	cursor.execute("INSERT INTO Comments(text, Date, picture_id) VALUES ('{0}','{1}','{2}')".format(comment, date, photo_id))
+	conn.commit()
+	return redirect(url_for('view_photo', photo_id=photo_id))
 
 @app.route('/delete_photo/<photo_id>', methods=["GET", "POST"])
 @flask_login.login_required

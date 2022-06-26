@@ -60,3 +60,23 @@ CREATE TABLE Tags(
  tag_name VARCHAR(20),
  CONSTRAINT tags_pk PRIMARY KEY (tag_name)
 );
+
+
+CREATE TABLE Comments(
+    Comment_id int4 AUTO_INCREMENT,
+    text VARCHAR(1000) NOT NULL,
+    date DATE,
+    picture_id int4,
+    user_id int4,
+    FOREIGN KEY(picture_id) REFERENCES Pictures(picture_id),
+    FOREIGN KEY(user_id) REFERENCES Users(user_id),
+    CONSTRAINT comment_pk PRIMARY KEY (Comment_id)
+);
+
+CREATE TABLE Likes(
+    liked_by INTEGER,
+    picture_id INTEGER,
+    FOREIGN KEY (liked_by) REFERENCES User(user_id),
+    FOREIGN KEY(picture_id) REFERENCES Pictures(picture_id)
+);
+
