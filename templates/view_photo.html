@@ -6,6 +6,8 @@
 </head>
 <body>
         <img src='data:image/jpg/jpeg/gif;base64, {{base64.b64encode(image).decode("ascii")}}' width="400" height="379"/>
+        <br>
+        <a href ='{{ url_for( 'delete_photo', photo_id=photo_id) }}'>Delete</a>
 
 
 </body>

@@ -48,10 +48,15 @@ CREATE TABLE Pictures
   caption VARCHAR(255),
   Album_id int4,
   user_id int4,
+  tag_name VARCHAR(20),
+  FOREIGN KEY (tag_name) REFERENCES Tags(tag_name),
   FOREIGN KEY (Album_id) REFERENCES Albums(Album_id),
   FOREIGN KEY (user_id) REFERENCES Users(user_id),
   INDEX upid_idx (user_id),
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
 
-
+CREATE TABLE Tags(
+ tag_name VARCHAR(20),
+ CONSTRAINT tags_pk PRIMARY KEY (tag_name)
+);

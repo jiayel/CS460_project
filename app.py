@@ -28,7 +28,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
+app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -222,7 +222,6 @@ def album_content(album_id):
 
 from base64 import b64encode
 @app.route('/view_photo/<photo_id>', methods = ['GET','POST'])
-@flask_login.login_required
 def view_photo(photo_id):
 	cursor = conn.cursor()
 	cursor.execute(
@@ -230,6 +229,25 @@ def view_photo(photo_id):
 			photo_id))
 	image = cursor.fetchone()[0]  # a list of tuples, [(imgdata, pid, caption), ...]
 	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64)
+
+@app.route('/delete_photo/<photo_id>', methods=["GET", "POST"])
+@flask_login.login_required
+def delete_photo(photo_id):
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
+	conn.commit()
+	return redirect(url_for('protected'))
+
+@app.route('/delete_album/<album_id>', methods =["GET", "POST"])
+@flask_login.login_required
+def delete_album(album_id):
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM Pictures WHERE Album_id ='{0}'".format(album_id))
+	cursor.execute("DELETE FROM Albums WHERE Album_id = '{0}'".format(album_id))
+	conn.commit()
+	return redirect(url_for('protected'))
+
 
 
 #begin photo uploading code
