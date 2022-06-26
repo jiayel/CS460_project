@@ -5,13 +5,8 @@
     <title>Title</title>
 </head>
 <body>
-    <div>
-                        <img  src="data:image/jpg/png/jpeg/gif;base64, {{image}}"
-                      style="object-fit:cover;
-                        width:200px;
-                        height:300px;
-                        border: solid 1px #CCC"/>
-    </div>
+        <img src='data:image/jpg/jpeg/gif;base64, {{base64.b64encode(image).decode("ascii")}}' width="400" height="379"/>
+
 
 </body>
 </html>

@@ -228,8 +228,9 @@ def view_photo(photo_id):
 	cursor.execute(
 		"SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE picture_id = '{0}'".format(
 			photo_id))
-	image = cursor.fetchall()  # a list of tuples, [(imgdata, pid, caption), ...]
-	return render_template('view_photo.html',photo_id=photo_id,image=image)
+	image = cursor.fetchone()[0]  # a list of tuples, [(imgdata, pid, caption), ...]
+	print(image)
+	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64)
 
 
 #begin photo uploading code

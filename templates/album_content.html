@@ -11,12 +11,10 @@
 
     <div>
         {% for photo in all_photos %}
+            {{photo[2]}}<br>
             <a href ='{{ url_for( 'view_photo', photo_id=photo[1]) }}'>
-                <img  src="data:image/jpg/png/jpeg/gif;base64, {{ photo[0]}}"
-                      style="object-fit:cover;
-                        width:200px;
-                        height:300px;
-                        border: solid 1px #CCC"/>
+                <img src='data:image/jpg/jpeg/gif;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width="400" height="379"/>
+
             </a>
         {% endfor %}
     </div>
