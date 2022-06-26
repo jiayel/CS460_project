@@ -158,6 +158,11 @@ def getUsersPhotos(uid):
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
 
+def getPhoto_by_Photoid(photo_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
+	return cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
+
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
@@ -210,15 +215,47 @@ def view_album():
 def album_content(album_id):
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
-	cursor.execute("SELECT picture_id, imgdata, caption, album_id FROM Pictures WHERE user_id='{0}'".format(uid))
-	all_photos = cursor.fetchall()
-	return render_template('album_content.html', all_photos=all_photos)
+	cursor.execute("SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE user_id = '{0}' and Album_id ='{1}'".format(uid,album_id))
+	all_photos = cursor.fetchall() # a list of tuples, [(imgdata, pid, caption), ...]
+	print(all_photos)
+	return render_template('album_content.html', all_photos=all_photos, album_id=album_id,base64=base64)
+
+from base64 import b64encode
+@app.route('/view_photo/<photo_id>', methods = ['GET','POST'])
+@flask_login.login_required
+def view_photo(photo_id):
+	cursor = conn.cursor()
+	cursor.execute(
+		"SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE picture_id = '{0}'".format(
+			photo_id))
+	image = cursor.fetchone()[0]  # a list of tuples, [(imgdata, pid, caption), ...]
+	print(image)
+	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64)
+
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload_photo/<album_id>', methods=['GET', 'POST'])
+@flask_login.login_required
+def upload_photo(album_id):
+	if request.method == 'POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		imgfile = request.files['photo']
+		caption = request.form.get('caption')
+		photo_data =imgfile.read()
+		cursor = conn.cursor()
+		cursor.execute("INSERT INTO Pictures (imgdata, user_id, caption,Album_id) VALUES (%s, %s, %s,%s)",(photo_data, uid, caption,album_id))
+		conn.commit()
+		return render_template('upload_photo.html',album_id=album_id)
+	#The method is GET so we return a  HTML form to upload the a photo.
+	else:
+		return render_template('upload_photo.html',album_id=album_id)
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -236,6 +273,8 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+
+#begin add friends and view friends page
 @app.route('/friend', methods=['GET','POST'])
 @flask_login.login_required
 def friend():
@@ -270,7 +309,7 @@ def view_friend():
 	# if final == []:
 	# 	return render_template('view_friend.html', friends = i)
 	return render_template('view_friend.html', friends = i)
-
+#end add and view friends page
 
 #default page
 @app.route("/", methods=['GET', 'POST'])

@@ -46,13 +46,11 @@ CREATE TABLE Pictures
   picture_id int4  AUTO_INCREMENT,
   imgdata longblob NOT NULL,
   caption VARCHAR(255),
-  Album_id int4 NOT NULL,
-  CONSTRAINT pictures_pk PRIMARY KEY (picture_id),
-  FOREIGN KEY (Album_id) REFERENCES Albums(Album_id)
+  Album_id int4,
+  FOREIGN KEY (Album_id) REFERENCES Albums(Album_id),
+  FOREIGN KEY (user_id) REFERENCES Users(user_id),
+  INDEX upid_idx (user_id),
+  CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
 
 
-
-
--- INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
--- INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
