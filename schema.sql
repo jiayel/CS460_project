@@ -1,6 +1,9 @@
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
+
+DROP TABLE IF EXISTS Albums CASCADE;
 DROP TABLE IF EXISTS Pictures CASCADE;
+DROP TABLE IF EXISTS Friends CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
@@ -10,14 +13,14 @@ CREATE TABLE Users (
     email varchar(255) UNIQUE,
     password varchar(255),
     Hometown VARCHAR(100),
-    Gender VARCHAR(1) NOT NULL,
+    Gender VARCHAR(10) NOT NULL,
     Date_of_birth DATE NOT NULL,
-    constraint chk1 check (Gender = 'F' or Gender = 'M'),
+    constraint chk1 check (Gender = 'F' or Gender = 'M' or Gender='other'),
     CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
 
-DROP TABLE IF EXISTS Frinds CASCADE;
+
 
 CREATE TABLE Friends(
     Friends_id INTEGER,
@@ -27,7 +30,7 @@ CREATE TABLE Friends(
     PRIMARY KEY(user_id, Friends_id)
                     );
 
-DROP TABLE IF EXISTS Albums CASCADE;
+
 CREATE TABLE Albums(
     Album_id int4 AUTO_INCREMENT,
     Album_name VARCHAR(30) NOT NULL,
@@ -41,8 +44,7 @@ CREATE TABLE Albums(
 CREATE TABLE Pictures
 (
   picture_id int4  AUTO_INCREMENT,
-  user_id int4,
-  imgdata longblob ,
+  imgdata longblob NOT NULL,
   caption VARCHAR(255),
   Album_id int4,
   FOREIGN KEY (Album_id) REFERENCES Albums(Album_id),
@@ -52,6 +54,3 @@ CREATE TABLE Pictures
 );
 
 
-
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
