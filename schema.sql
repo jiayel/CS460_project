@@ -44,10 +44,12 @@ CREATE TABLE Pictures
   user_id int4,
   imgdata longblob ,
   caption VARCHAR(255),
+  Album_id int4,
+  FOREIGN KEY (Album_id) REFERENCES Albums(Album_id),
+  FOREIGN KEY (user_id) REFERENCES Users(user_id),
   INDEX upid_idx (user_id),
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
-
 
 
 
