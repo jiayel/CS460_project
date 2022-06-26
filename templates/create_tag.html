@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<div id="content">
+            <form method="post" action="{{ url_for('create_tag') }}">
+                <label for="tag">your new tag:</label>
+                <input type="tag" name="tag" /><br />
+                <input type="submit" />
+            </form>
+            
+ </div>

@@ -28,7 +28,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -150,7 +150,7 @@ def register_user():
 		return render_template('profile.html', name=First_name, message='Account Created!')
 	else:
 		print("couldn't find all tokens 2")
-		flash("Account has been created", "info")
+		flash("Account has already been created, try another Email!", "info")
 		return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):
@@ -229,7 +229,6 @@ def view_photo(photo_id):
 		"SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE picture_id = '{0}'".format(
 			photo_id))
 	image = cursor.fetchone()[0]  # a list of tuples, [(imgdata, pid, caption), ...]
-	print(image)
 	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64)
 
 
@@ -281,7 +280,6 @@ def friend():
 	if request.method =='POST':
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		f_email = request.form.get('Friend')
-		print(f_email)
 		fid = getUserIdFromEmail(f_email)
 		user_email = flask_login.current_user.id
 		cursor = conn.cursor()
@@ -310,6 +308,33 @@ def view_friend():
 	# 	return render_template('view_friend.html', friends = i)
 	return render_template('view_friend.html', friends = i)
 #end add and view friends page
+
+@app.route('/tag', methods = ['GET','POST'])
+def view_tag():
+	cursor = conn.cursor()
+	cursor.execute("SELECT * FROM Tags")
+	tags = list(cursor.fetchall())
+	cleaned_tags=[]
+	for tag in tags:
+		cleaned_tags.append(tag[0])
+	return render_template('tag.html', tags = cleaned_tags)
+
+@app.route('/create_tag', methods = ['GET','POST'])
+def create_tag():
+	if request.method == "POST":
+		new_tag = request.form.get('tag')
+		cursor = conn.cursor()
+		if cursor.execute("SELECT * FROM Tags WHERE tag_name = '{0}'".format(new_tag)):
+			return render_template('create_tag.html',message="Oops! this tag was already created. Try another one!")
+		else:
+			print(cursor.execute("INSERT INTO Tags(tag_name) VALUES ('{0}')".format(new_tag)))
+			conn.commit()
+			flash("new tag has been added!!!",'info')
+			return flask.redirect(flask.url_for('view_tag'))
+	else:
+		return render_template('create_tag.html',message="Create a new tag!")
+
+
 
 #default page
 @app.route("/", methods=['GET', 'POST'])
