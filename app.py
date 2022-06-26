@@ -10,12 +10,16 @@
 ###################################################
 
 import flask
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, Response, request, render_template, redirect, url_for, flash
 from flaskext.mysql import MySQL
 import flask_login
 
 #for image uploading
 import os, base64
+
+#for current date
+from datetime import datetime
+
 
 mysql = MySQL()
 app = Flask(__name__)
@@ -23,7 +27,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -130,7 +134,7 @@ def register_user():
 		Date_of_birth = request.form.get('Date_of_birth')
 
 	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+		print("couldn't find all tokens 1") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
@@ -142,9 +146,10 @@ def register_user():
 		user.id = email
 
 		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
+		return render_template('hello.html', name=First_name, message='Account Created!')
 	else:
-		print("couldn't find all tokens")
+		print("couldn't find all tokens 2")
+		flash("Account has been created","info")
 		return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):
@@ -172,6 +177,23 @@ def isEmailUnique(email):
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
 
+
+@app.route('/view_albums', methods =['GET', 'POST'])
+@flask_login.login_required
+def view_albums():
+	if request.method == 'POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		album_name = request.form.get('album_name')
+		date = datetime.now()
+		cursor = conn.cursor()
+		print(cursor.execute(
+			"INSERT INTO Albums(name,Date_of_creation, user_id) VALUES ('{0}','{1}','{2}')".format(album_name, date, uid)))
+		conn.commit()
+		return render_template('view_albums.html')
+	else:
+		return render_template('view_albums.html')
+
+
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -194,6 +216,31 @@ def upload_file():
 	else:
 		return render_template('upload.html')
 #end photo uploading code
+
+@app.route('/friend', methods=['GET','POST'])
+@flask_login.login_required
+def friend():
+	if request.method =='POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		f_email = request.form.get('Friend')
+		print(f_email)
+		fid = getUserIdFromEmail(f_email)
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Friends(Friends_id, Friends_email, user_id) VALUES ('{0}','{1}','{2}')".format(fid,f_email,uid)))
+		conn.commit()
+		return render_template('friend.html', name=flask_login.current_user.id, message='Friend Added!')
+	else:
+		return render_template('friend.html')
+
+@app.route('/view_friend', methods = ['GET','POST'])
+@flask_login.login_required
+def view_friend():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	cursor.execute("SELECT Friends_email FROM Friends WHERE user_id = '{0}'".format(uid))
+	Friends= cursor.fetchall()
+
+	return render_template('view_friend.html', friends = Friends)
 
 
 #default page
