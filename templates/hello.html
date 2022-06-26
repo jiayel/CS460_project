@@ -36,7 +36,7 @@
 <div class="row text-center text-lg-left">
   {% for photo in Photos %}
       <div class="col-lg-3 col-md-4 col-xs-6">
-        <img src='data:image/jpg;base64, {{ photo[1] }}'>
+        <img src='data:image/jpg/jpeg/gif;base64, {{ base64.b64encode(photo[1]).decode("ascii") }}'>
       </div>
   {% endfor %}
 </div>

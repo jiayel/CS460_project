@@ -28,7 +28,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
+app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -263,7 +263,7 @@ def upload_file():
 	if request.method == 'POST':
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
-		photo_data =base64.standard_b64encode(imgfile.read())
+		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		cursor.execute('''INSERT INTO Pictures (imgdata, caption) VALUES (%s, %s )''', (photo_data, caption))
 		conn.commit()
@@ -316,11 +316,8 @@ def view_friend():
 def hello():
 	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
 	cursor.execute(query)
-	all_photos = []
-	for item in cursor:
-		img = ''.join(list(str(item[1]))[2:-1])
-		all_photos.append([item[0], img, item[2]])
-	return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos)
+	all_photos = cursor.fetchall()
+	return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos,base64=base64)
 
 
 if __name__ == "__main__":
