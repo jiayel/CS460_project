@@ -28,7 +28,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -112,7 +112,10 @@ def login():
 @app.route('/logout')
 def logout():
 	flask_login.logout_user()
-	return render_template('hello.html', message='Logged out')
+	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
+	cursor.execute(query)
+	all_photos = cursor.fetchall()
+	return render_template('hello.html', message='Logged out',Photos=all_photos, base64=base64)
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -217,7 +220,7 @@ def album_content(album_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE user_id = '{0}' and Album_id ='{1}'".format(uid,album_id))
 	all_photos = cursor.fetchall() # a list of tuples, [(imgdata, pid, caption), ...]
-	print(all_photos)
+	# print(all_photos)
 	return render_template('album_content.html', all_photos=all_photos, album_id=album_id,base64=base64)
 
 from base64 import b64encode
@@ -237,7 +240,14 @@ def view_photo(photo_id):
 	all_comments = cursor.fetchall()
 	#show likes
 
-	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64, all_comments= all_comments)
+
+	#get tags
+	cursor = conn.cursor()
+	cursor.execute(
+		"SELECT tag_name FROM Tags_and_pics WHERE picture_id = '{0}'".format(
+			photo_id))
+	tags= cursor.fetchall()
+	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64, all_comments= all_comments,tags=tags)
 
 @app.route('/add_comment/<photo_id>', methods =["GET", "POST"])
 def add_comment(photo_id):
@@ -282,14 +292,39 @@ def upload_photo(album_id):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		tags = request.form.get('tag').split(" ")
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		cursor.execute("INSERT INTO Pictures (imgdata, user_id, caption,Album_id) VALUES (%s, %s, %s,%s)",(photo_data, uid, caption,album_id))
 		conn.commit()
-		return render_template('upload_photo.html',album_id=album_id)
+		#add tag into tag_and_pics
+		query = 'select picture_id from Pictures ORDER BY picture_id DESC LIMIT 1'
+		cursor.execute(query)
+		photo_id = cursor.fetchall()
+		print(photo_id)
+	
+		for i in range(len(tags)):
+			cursor = conn.cursor()
+			query = "SELECT * FROM Tags WHERE tag_name ='{0}'".format(tags[i])
+			if not cursor.execute(query):
+				cursor.execute("INSERT INTO Tags (tag_name) VALUES (%s)",(tags[i]))
+				conn.commit()
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO Tags_and_pics (tag_name, picture_id) VALUES (%s, %s)",(tags[i], photo_id))
+			conn.commit()
+		#get image data
+		query = "SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE Album_id ='{0}'".format(album_id)
+		cursor.execute(query)
+		all_photos = cursor.fetchall()
+		return render_template('album_content.html',album_id=album_id, all_photos=all_photos,base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
-		return render_template('upload_photo.html',album_id=album_id)
+		cursor = conn.cursor()
+		query = 'SELECT tag_name FROM Tags'
+		cursor.execute(query)
+		all_tags = cursor.fetchall()
+		print(all_tags)
+		return render_template('upload_photo.html',album_id=album_id,Tag=all_tags)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -370,11 +405,21 @@ def create_tag():
 	else:
 		return render_template('create_tag.html',message="Create a new tag!")
 
+#for viewing tags
+@app.route('/view_tag/<tag>', methods =["GET"])
+def view_alltag(tag):
+	cursor = conn.cursor()
+	print(type(tag))
+	query = "SELECT Pictures.picture_id, imgdata, caption FROM Tags_and_pics, Pictures where Tags_and_pics.tag_name='{0}' and Pictures.picture_id=Tags_and_pics.picture_id".format(tag)
+	cursor.execute(query)
+	all_photos = cursor.fetchall()
+	return render_template('view_tags.html',Photos=all_photos,base64=base64)
 
 
 #default page
 @app.route("/", methods=['GET', 'POST'])
 def hello():
+	cursor = conn.cursor()
 	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
 	cursor.execute(query)
 	all_photos = cursor.fetchall()
