@@ -6,10 +6,18 @@
 </head>
 <body>
     <div>
+    {% if all_albums == () %}
+        <br>No albums, create one!<br>
+    {% else %}
+    <br>Here are the albums!<br>
     {% for album in all_albums %}
         <a href ='{{ url_for( 'album_content', album_id=album[0])}}'>{{ album[1] }}</a>
     {% endfor %}
+    {% endif %}
     </div>
-
+    <div>
+    <a href='/profile'>return to profile</a></li>
+    </div>
 </body>
+
 </html>
