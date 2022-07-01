@@ -1,7 +1,7 @@
 <!-- author ben lawson (balawson@bu.edu) -->
 <!doctype html>
 {% if message %}
-  <h4>{{message}}!</h4>
+  <h1>{{message}}!</h1>
 {% endif %}
 <title>Welcome to Photoshare</title>
 
@@ -35,8 +35,11 @@
 </ul>
 
 <!-- Page Content -->
-<h4 class="my-4 text-center text-lg-center"> Photo Gallery </h4>
-
+<h2 class="my-4 text-center text-lg-center"> Photo Gallery </h2>
+<ul>
+  <li><a href='/tag'>View all the tags</a></li>
+  <li><a href='/search_tags'>search photos by tags</a></li>
+</ul>
 <div class="row text-center text-lg-left">
   {% for photo in Photos %}
       <div class="col-lg-3 col-md-4 col-xs-6">
