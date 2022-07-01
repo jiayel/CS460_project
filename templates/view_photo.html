@@ -5,6 +5,9 @@
     <title>Title</title>
 </head>
 <body>
+    <li><a href='/'>Home</a></li>
+
+
         <img src='data:image/jpg/jpeg/gif;base64, {{base64.b64encode(image).decode("ascii")}}' width="400" height="379"/>
         <div>
             <a>tags:</a>
@@ -20,8 +23,17 @@
             <input type="Comment" name="Comment"/><br/>
             <input type="submit"/>
         </form>
-        
+
+        <a href="{{ url_for('like', photo_id=photo_id) }}" >like</a>
+        <div>
+            By
+            {% for like in likedby %}
+                 <div> {{like[1]}}</div>
+            {% endfor %}
+        </div>
+
          <div>
+            Comments
              {% for comment in all_comments %}
                  <div>
                     {% if comment[1] == None %}
@@ -34,6 +46,7 @@
                         {{ comment[0]}}
                     {% endif %}
                 </div>
+
             {% endfor %}
         </div>
         <br>
