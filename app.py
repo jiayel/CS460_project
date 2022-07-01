@@ -453,29 +453,26 @@ def view_friend():
 @app.route('/tag', methods=['GET', 'POST'])
 def view_tag():
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Tags")
-    tags = list(cursor.fetchall())
-    cleaned_tags = []
-    for tag in tags:
-        cleaned_tags.append(tag[0])
-    return render_template('tag.html', tags=cleaned_tags)
+    cursor.execute("SELECT tag_name, COUNT(*) AS count FROM Tags_and_pics GROUP BY tag_name ORDER BY count DESC")
+    tags = cursor.fetchall()
+    return render_template('tag.html', tags=tags)
 
 
-@app.route('/create_tag', methods=['GET', 'POST'])
-def create_tag():
-    if request.method == "POST":
-        new_tag = request.form.get('tag')
-        cursor = conn.cursor()
-        if cursor.execute("SELECT * FROM Tags WHERE tag_name = '{0}'".format(new_tag)):
-            return render_template('create_tag.html', message="Oops! this tag was already created. Try another one!")
-        else:
-            print(cursor.execute(
-                "INSERT INTO Tags(tag_name) VALUES ('{0}')".format(new_tag)))
-            conn.commit()
-            flash("new tag has been added!!!", 'info')
-            return flask.redirect(flask.url_for('view_tag'))
-    else:
-        return render_template('create_tag.html', message="Create a new tag!")
+# @app.route('/create_tag', methods=['GET', 'POST'])
+# def create_tag():
+#     if request.method == "POST":
+#         new_tag = request.form.get('tag')
+#         cursor = conn.cursor()
+#         if cursor.execute("SELECT * FROM Tags WHERE tag_name = '{0}'".format(new_tag)):
+#             return render_template('create_tag.html', message="Oops! this tag was already created. Try another one!")
+#         else:
+#             print(cursor.execute(
+#                 "INSERT INTO Tags(tag_name) VALUES ('{0}')".format(new_tag)))
+#             conn.commit()
+#             flash("new tag has been added!!!", 'info')
+#             return flask.redirect(flask.url_for('view_tag'))
+#     else:
+#         return render_template('create_tag.html', message="Create a new tag!")
 @app.route('/search_tags', methods=['GET', 'POST'])
 def search_tags():
     cursor = conn.cursor()
@@ -501,7 +498,7 @@ def search_own_tags():
     uid = getUserIdFromEmail(flask_login.current_user.id)
     print(uid)
     cursor = conn.cursor()
-    query = "SELECT T.tag_name FROM Tags T, Tags_and_pics TP, Pictures P WHERE T.tag_name=TP.tag_name AND TP.picture_id=P.picture_id AND P.user_id='{0}'".format(uid)
+    query = "SELECT DISTINCT T.tag_name FROM Tags T, Tags_and_pics TP, Pictures P WHERE T.tag_name=TP.tag_name AND TP.picture_id=P.picture_id AND P.user_id='{0}'".format(uid)
     cursor.execute(query)
     all_tags = cursor.fetchall()
     if request.method == "POST":

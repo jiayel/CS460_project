@@ -11,17 +11,19 @@
 <h1>
     Here are the tags!
 </h1>
-
+<h2>
+    Ranking of the tags:
+</h2>
 <body>
-    <div class="row text-center text-lg-left">
+    <ol>
         {% for tag in tags %}
-        <a href='{{ url_for( 'view_alltag', tag=tag ) }}'>#{{tag}}</a>
+        <li>
+            <a href ='{{ url_for( 'view_alltag', tag=tag[0]) }}'>#{{tag[0]}}</a>
+            <a>with photos {{tag[1]}}</a>
+        </li>
         {% endfor %}
-    </div>
+    </ol>
     </br>
-    <div>
-        <a href='/create_tag'>create new tag</a>
-    </div>
 </body>
 
 </html>
