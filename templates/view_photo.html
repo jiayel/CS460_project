@@ -26,14 +26,14 @@
 
         <a href="{{ url_for('like', photo_id=photo_id) }}" >like</a>
         <div>
-            By
+            liked By:
             {% for like in likedby %}
-                 <div> {{like[1]}}</div>
+                 <a> {{like[1]}} </a>
             {% endfor %}
         </div>
-
+        </br>
          <div>
-            Comments
+            Comments:
              {% for comment in all_comments %}
                  <div>
                     {% if comment[1] == None %}
