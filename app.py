@@ -354,6 +354,7 @@ def delete_photo(photo_id):
     cursor.execute("DELETE FROM Comments WHERE picture_id = '{0}'".format(photo_id))
     cursor.execute("DELETE FROM Likes WHERE picture_id = '{0}'".format(photo_id))
     cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
+
     conn.commit()
     return redirect(url_for('protected'))
 
@@ -529,6 +530,7 @@ def search_tags():
         return render_template('search_tags.html', Photos=all_photos, base64=base64,Tag=all_tags)
     else:
         return render_template('search_tags.html', Photos=(), base64=base64, Tag=all_tags)
+    
 @app.route('/search_own_tags', methods=['GET', 'POST'])
 def search_own_tags():
     uid = getUserIdFromEmail(flask_login.current_user.id)
