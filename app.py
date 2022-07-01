@@ -116,7 +116,10 @@ def logout():
 	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
 	cursor.execute(query)
 	all_photos = cursor.fetchall()
-	return render_template('hello.html', message='Logged out',Photos=all_photos, base64=base64)
+	query = "SELECT Album_id, Album_name FROM Albums ORDER BY Album_id DESC LIMIT 100"
+	cursor.execute(query)
+	all_albums = cursor.fetchall()
+	return render_template('hello.html', message='Logged out',Photos=all_photos, base64=base64,all_albums=all_albums)
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -282,8 +285,8 @@ def add_comment(photo_id):
 		uid = flask_login.	uid = getUserIdFromEmail(flask_login.current_user.id)
 		cursor.execute("INSERT INTO Comments(text, Date, picture_id,user_id) VALUES ('{0}','{1}','{2}','{3}')".format(comment, date, photo_id, uid))
 	else:
-
-		uid = 4 #anaoymous userid =4
+		cursor.execute("SELECT user_id FROM Users WHERE email ='anon@anon'")
+		uid = cursor.fetchone()[0] #anaoymous userid
 		cursor.execute("INSERT INTO Comments(text, Date, picture_id,user_id) VALUES ('{0}','{1}','{2}','{3}')".format(comment, date, photo_id,uid))
 	conn.commit()
 	return redirect(url_for('view_photo', photo_id=photo_id))
@@ -456,6 +459,59 @@ def view_alltag(tag):
 	all_photos = cursor.fetchall()
 	return render_template('view_tags.html',Photos=all_photos,base64=base64)
 
+@app.route('/top10_users', methods=["GET", "POST"])
+def top10_users():
+	query1 = "SELECT P.user_id, COUNT(*) AS pscore FROM Pictures P GROUP BY user_id ORDER BY pscore DESC"
+	cursor.execute(query1)
+	photoscore = cursor.fetchall()
+
+	query2 = "SELECT C.user_id, COUNT(*) AS cscore FROM Comments C GROUP BY user_id ORDER BY cscore DESC"
+	cursor.execute(query2)
+	commentscore = cursor.fetchall()
+
+	query3 = "SELECT user_id FROM Users"
+	cursor.execute(query3)
+	all_userid = cursor.fetchall()
+
+	cursor.execute("SELECT user_id FROM Users WHERE email ='anon@anon'")
+	uid = cursor.fetchone()[0]  # anaoymous userid
+
+	all_users=[]
+	for i in all_userid:
+		if i[0] != uid:
+			all_users.append([i[0],0])
+
+	for i in photoscore:
+		for j in all_users:
+			if i[0]==j[0]:
+				j[1]=i[1]
+
+	for i in commentscore:
+		for j in all_users:
+			if i[0]==j[0]:
+				j[1]+=i[1]
+
+	print(all_users)
+	print(photoscore)
+	print(commentscore)
+	all_users_ordered = list(reversed(sorted(all_users, key = lambda x:x[1])))
+	top10_users=[]
+	if len(all_users)>=10:
+		top10_users=all_users[0:9]
+	else:
+		top10_users=all_users
+
+	query = "SELECT First_name, user_id FROM Users WHERE user_id = %s"
+	top10_user_name=[]
+	for i in top10_users:
+		cursor.execute(query, i[0])
+		for item in cursor:
+			top10_user_name.append([item[1], item[0]])
+
+	print(top10_user_name)
+
+	return render_template('top10_users.html', top10_users=top10_user_name)
+
 
 #default page
 @app.route("/", methods=['GET', 'POST'])
@@ -465,7 +521,7 @@ def hello():
 	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
 	cursor.execute(query)
 	all_photos = cursor.fetchall()
-	query ="SELECT Album_id, Album_name, user_id FROM Albums ORDER BY Album_id DESC LIMIT 100"
+	query ="SELECT Album_id, Album_name FROM Albums ORDER BY Album_id DESC LIMIT 100"
 	cursor.execute(query)
 	all_albums = cursor.fetchall()
 	if current_user.is_authenticated:
