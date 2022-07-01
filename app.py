@@ -350,6 +350,7 @@ def delete_photo(photo_id):
 
     uid = getUserIdFromEmail(flask_login.current_user.id)
     cursor = conn.cursor()
+    cursor.execute("DELETE FROM Tags_and_pics WHERE picture_id = '{0}'".format(photo_id))
     cursor.execute("DELETE FROM Comments WHERE picture_id = '{0}'".format(photo_id))
     cursor.execute("DELETE FROM Likes WHERE picture_id = '{0}'".format(photo_id))
     cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
@@ -362,6 +363,7 @@ def delete_photo(photo_id):
 @flask_login.login_required
 def delete_album(album_id):
     cursor = conn.cursor()
+    cursor.execute("DELETE FROM Tags_and_pics WHERE picture_id in (SELECT picture_id FROM Pictures WHERE Album_id ='{0}')".format(album_id))
     cursor.execute(
         "DELETE FROM Pictures WHERE Album_id ='{0}'".format(album_id))
     cursor.execute(

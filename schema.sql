@@ -70,7 +70,7 @@ CREATE TABLE Pictures
  tag_name VARCHAR(20),
  picture_id int4  AUTO_INCREMENT,
  FOREIGN KEY (tag_name) REFERENCES Tags(tag_name),
-  FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id)
+ FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id)
  );
 
 
