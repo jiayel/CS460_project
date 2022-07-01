@@ -10,7 +10,8 @@
 ###################################################
 
 import flask
-from flask import Flask, Response, request, render_template, redirect, url_for, flash
+from flask import Flask, Response, request, render_template, redirect, url_for, flash, session
+from flask_login import current_user
 from flaskext.mysql import MySQL
 import flask_login
 
@@ -28,7 +29,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'GZTgzt1126'
+app.config['MYSQL_DATABASE_PASSWORD'] = '11111111'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -126,6 +127,7 @@ def unauthorized_handler():
 def register():
 	return render_template('register.html', supress='True')
 
+
 @app.route("/register", methods=['POST'])
 def register_user():
 	try:
@@ -214,11 +216,9 @@ def view_album():
 		return render_template('view_album.html', all_albums = all_albums)
 
 @app.route('/album_content/<album_id>', methods =['GET','POST'])
-@flask_login.login_required
 def album_content(album_id):
-	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
-	cursor.execute("SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE user_id = '{0}' and Album_id ='{1}'".format(uid,album_id))
+	cursor.execute("SELECT imgdata, picture_id, caption,Album_id FROM Pictures WHERE  Album_id ='{0}'".format(album_id))
 	all_photos = cursor.fetchall() # a list of tuples, [(imgdata, pid, caption), ...]
 	# print(all_photos)
 	return render_template('album_content.html', all_photos=all_photos, album_id=album_id,base64=base64)
@@ -235,10 +235,25 @@ def view_photo(photo_id):
 
 	#show comment
 	cursor.execute(
-		"SELECT text, user_id FROM Comments WHERE picture_id = '{0}'".format(photo_id)
+		"SELECT C.text, U.First_name FROM Comments C, Users U WHERE C.user_id = U.user_id AND C.picture_id = '{0}'".format(photo_id)
 	)
 	all_comments = cursor.fetchall()
-	#show likes
+
+	# find all likes
+	query = 'SELECT user_id, picture_id FROM Likes'
+	cursor.execute(query)
+	likers = []
+	for item in cursor:
+		if int(item[1]) == int(photo_id):
+			likers.append(int(item[0]))
+
+	# find names of all likers
+	query = 'SELECT first_name, user_id FROM Users'
+	cursor.execute(query)
+	likedby = []
+	for item in cursor:
+		if int(item[1]) in likers:
+			likedby.append([item[1], item[0]])
 
 
 	#get tags
@@ -247,22 +262,48 @@ def view_photo(photo_id):
 		"SELECT tag_name FROM Tags_and_pics WHERE picture_id = '{0}'".format(
 			photo_id))
 	tags= cursor.fetchall()
-	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64, all_comments= all_comments,tags=tags)
+
+	# if logged in
+	if session.get('loggedin'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		if uid in likers:
+			likedby = True
+		else:
+			likedby = False
+
+	return render_template('view_photo.html',photo_id=photo_id,image=image,base64=base64, all_comments= all_comments,tags=tags, likedby = likedby)
 
 @app.route('/add_comment/<photo_id>', methods =["GET", "POST"])
 def add_comment(photo_id):
 	comment = request.form.get('Comment')
 	date = datetime.now()
 	cursor = conn.cursor()
-	cursor.execute("INSERT INTO Comments(text, Date, picture_id) VALUES ('{0}','{1}','{2}')".format(comment, date, photo_id))
+	if current_user.is_authenticated:
+		uid = flask_login.	uid = getUserIdFromEmail(flask_login.current_user.id)
+		cursor.execute("INSERT INTO Comments(text, Date, picture_id,user_id) VALUES ('{0}','{1}','{2}','{3}')".format(comment, date, photo_id, uid))
+	else:
+
+		uid = 4 #anaoymous userid =4
+		cursor.execute("INSERT INTO Comments(text, Date, picture_id,user_id) VALUES ('{0}','{1}','{2}','{3}')".format(comment, date, photo_id,uid))
 	conn.commit()
 	return redirect(url_for('view_photo', photo_id=photo_id))
+
+@app.route('/like/<photo_id>', methods=["GET", "POST"])
+@flask_login.login_required
+def like(photo_id):
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor.execute("INSERT INTO Likes (user_id, picture_id) VALUES ('{0}','{1}')".format(uid, photo_id))
+	conn.commit()
+	return redirect(url_for('view_photo', photo_id=photo_id))
+
 
 @app.route('/delete_photo/<photo_id>', methods=["GET", "POST"])
 @flask_login.login_required
 def delete_photo(photo_id):
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
+	cursor.execute("DELETE FROM Comments WHERE picture_id = '{0}'".format(photo_id))
+	cursor.execute("DELETE FROM Likes WHERE picture_id = '{0}'".format(photo_id))
 	cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
 	conn.commit()
 	return redirect(url_for('protected'))
@@ -419,11 +460,20 @@ def view_alltag(tag):
 #default page
 @app.route("/", methods=['GET', 'POST'])
 def hello():
+
 	cursor = conn.cursor()
 	query = 'SELECT picture_id, imgdata, caption FROM Pictures ORDER BY picture_id DESC LIMIT 100'
 	cursor.execute(query)
 	all_photos = cursor.fetchall()
-	return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos,base64=base64)
+	query ="SELECT Album_id, Album_name, user_id FROM Albums ORDER BY Album_id DESC LIMIT 100"
+	cursor.execute(query)
+	all_albums = cursor.fetchall()
+	if current_user.is_authenticated:
+		email = flask_login.current_user.id
+	else:
+		email = False
+	print(email)
+	return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos,base64=base64, all_albums=all_albums, email=email)
 
 
 if __name__ == "__main__":
