@@ -631,10 +631,8 @@ def hello():
     all_albums = cursor.fetchall()
     if current_user.is_authenticated:
         email = flask_login.current_user.id
-    else:
-        email = False
-    print(email)
-    return render_template('hello.html', message='Welecome to Photoshare',Photos=all_photos,base64=base64, all_albums=all_albums, email=email)
+        return render_template('profile.html', message='Welecome to Photoshare',Photos=all_photos,base64=base64, all_albums=all_albums,email=email)
+    return render_template('hello.html', message='Here is your profile',Photos=all_photos,base64=base64, all_albums=all_albums)
 
 
 
