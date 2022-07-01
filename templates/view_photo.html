@@ -23,9 +23,20 @@
         
          <div>
              {% for comment in all_comments %}
-                 <div>{{comment[1]}} {{ comment[0]}}</div>
+                 <div>
+                    {% if comment[1] == None %}
+                        <a>Unregistered User</a> 
+                        <a>:</a> 
+                        {{ comment[0]}}
+                    {% else %}
+                        {{ comment[1]}}
+                        <a>:</a> 
+                        {{ comment[0]}}
+                    {% endif %}
+                </div>
             {% endfor %}
         </div>
-
+        <br>
+        <a href='/'>Home</a>
 </body>
 </html>

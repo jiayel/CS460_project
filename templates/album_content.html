@@ -9,7 +9,8 @@
         <a href ='{{ url_for( 'upload_photo', album_id=album_id)}}'>upload_photos</a>
     </div>
     <a href ='{{ url_for( 'delete_album', album_id=album_id) }}'>Delete_Album</br>
-    <a href='/profile'>return to profile</a></li>
+    <a href='/view_album'>return to albumlist</a></li>
+
     <div>
     <br>Here are the photos in this album!<br>
         {% for photo in all_photos %}
