@@ -31,6 +31,7 @@ CREATE TABLE Friends(
     Friends_id INTEGER,
     Friends_email varchar(225) UNIQUE,
     user_id INTEGER,
+    user_email varchar(225) UNIQUE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
     PRIMARY KEY(user_id, Friends_id)
                     );

@@ -480,7 +480,7 @@ def view_friend():
             final.append(i)
     # if final == []:
     # 	return render_template('view_friend.html', friends = i)
-    return render_template('view_friend.html', friends=i)
+    return render_template('view_friend.html', friends=final)
 # end add and view friends page
 
 
