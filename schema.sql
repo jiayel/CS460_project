@@ -92,3 +92,10 @@ CREATE TABLE Likes(
     FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id)
 );
 
+INSERT INTO Users(email, password, First_name, Last_name, Date_of_birth, Hometown, Gender) VALUES (''anon@anon'',
+                                                                                                   ''anon123'',
+                                                                                                   ''anon'', ''anon'',
+                                                                                                   ''1900 - 01 - 01 '',
+                                                                                                   ''anon'', ''F'');
+
+

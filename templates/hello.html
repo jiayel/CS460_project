@@ -4,9 +4,11 @@
   <h1>{{message}}!</h1>
 {% endif %}
 <title>Welcome to Photoshare</title>
-{% if name %}
-  <h1>Hello {{ name }}!</h1>
+
+{% if email %}
+  <h1>Hello {{ email }}!</h1>
 {% endif %}
+
 <!-- {% if photos %}
 <h2>Here are your photos</h2>
     <ul>
@@ -28,6 +30,8 @@
 <ul>
 <li><a href='/login'>login</a></li>
 <li><a href='/register'>sign up</a></li>
+<li><a href ='profile'>Profile</a></li>
+<li><a href ='/top10_users'>Top 10 Users</a></li>
 </ul>
 
 <!-- Page Content -->
@@ -44,4 +48,13 @@
           </a>
       </div>
   {% endfor %}
+</div>
+
+<h4 class="my-4 text-center text-lg-center"> All Albums </h4>
+<div class="row text-center text-lg-left">
+    {% for album in all_albums %}
+      <div class="col-lg-3 col-md-4 col-xs-6">
+            <a href ='{{ url_for( 'album_content', album_id=album[0])}}'>{{ album[1] }}</a>
+        </div>
+    {% endfor %}
 </div>
